@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https:; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https:; base-uri 'none'; form-action 'self';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>桌面宠物 · AI 陪伴版</title>
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-shell">
+    <header class="hero-card">
+      <div>
+        <div class="eyebrow">桌面宠物 · 最终整合版</div>
+        <h1>先把 API、聊天、生成角色和天气这四件事做好</h1>
+        <p class="hero-copy">这里不再让你选提供商下拉框。你只需要配置同一套 AI 接口参数：API Key、接口地址、聊天模型、图片模型。聊天与角色生成共用这套设置；天气单独走实时天气服务，不依赖 AI。</p>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric-pill">
+          <span class="metric-label">当前角色</span>
+          <strong id="heroAvatarName">未创建</strong>
+        </div>
+        <div class="metric-pill">
+          <span class="metric-label">专注币</span>
+          <strong id="heroCoins">0</strong>
+        </div>
+        <div class="metric-pill">
+          <span class="metric-label">快乐度</span>
+          <strong id="heroHappiness">76/100</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-grid">
+      <section class="main-column">
+        <div class="card section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">1. AI 接口</div>
+              <div class="section-subtitle">所有 AI 功能都共用这一套设置。天气单独使用，不占用你的 Key。</div>
+            </div>
+            <div class="section-actions compact">
+              <label class="switch-row">
+                <input type="checkbox" id="alwaysOnTopInput" />
+                <span>桌宠始终置顶</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-grid two-col">
+            <label class="field">
+              <span>API Key</span>
+              <input id="aiApiKey" class="input" type="password" placeholder="填同一个 Key，聊天和角色生成共用" />
+            </label>
+            <label class="field">
+              <span>接口地址</span>
+              <input id="aiBaseUrl" class="input" placeholder="例如：https://api.openai.com/v1 或 Gemini v1beta 地址" />
+            </label>
+          </div>
+          <div class="form-grid two-col">
+            <label class="field">
+              <span>聊天模型</span>
+              <input id="chatModelInput" class="input" placeholder="例如：gpt-4o-mini / glm-4-flash / deepseek-chat / gemini-2.5-flash" />
+            </label>
+            <label class="field">
+              <span>图片模型</span>
+              <input id="imageModelInput" class="input" placeholder="例如：gpt-image-1；留空时自动改用 AI 设计 SVG 角色" />
+            </label>
+          </div>
+          <div class="tips-box">
+            <div><strong>建议：</strong>如果你的服务是 OpenAI 兼容接口，直接填接口根地址和模型名即可。</div>
+            <div>如果你使用 Gemini，请填 Gemini 的 v1beta 地址，并把聊天模型写成对应的 gemini 模型名。</div>
+          </div>
+          <div class="button-row">
+            <button id="saveAiBtn" class="btn primary">保存 AI 设置</button>
+            <button id="testAiBtn" class="btn secondary">测试 AI 接口</button>
+          </div>
+          <div id="aiStatus" class="status-box info">还没有测试 AI 接口。</div>
+        </div>
+
+        <div class="card section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">2. 角色工作室</div>
+              <div class="section-subtitle">支持上传照片辅助生成；图片模型不可用时，会改为让 AI 设计 SVG 角色卡，不会直接报错卡死。</div>
+            </div>
+            <div class="section-actions compact">
+              <span id="generationModeBadge" class="soft-pill">等待生成</span>
+            </div>
+          </div>
+          <div class="avatar-workbench">
+            <div class="preview-stack">
+              <div class="preview-card">
+                <div class="preview-label">上传图片</div>
+                <div id="uploadPreview" class="preview-box placeholder">未选择图片</div>
+                <button id="pickImageBtn" class="btn tertiary full">选择本地照片</button>
+              </div>
+              <div class="preview-card">
+                <div class="preview-label">生成结果</div>
+                <div id="generatedPreview" class="preview-box placeholder">生成后会显示在这里</div>
+                <div id="generationStatus" class="tiny-status">桌宠形象会尽量保留人物气质，并优先保证能稳定生成。</div>
+              </div>
+            </div>
+            <div class="editor-stack">
+              <div class="form-grid two-col">
+                <label class="field">
+                  <span>角色名</span>
+                  <input id="avatarName" class="input" placeholder="例如：小满" />
+                </label>
+                <label class="field">
+                  <span>活力值</span>
+                  <input id="avatarEnergy" class="input" type="number" min="0" max="100" value="70" />
+                </label>
+              </div>
+              <div class="form-grid two-col">
+                <label class="field">
+                  <span>风格</span>
+                  <select id="avatarStyle" class="select">
+                    <option value="cute">Q版可爱</option>
+                    <option value="anime">二次元</option>
+                    <option value="pixel">像素风</option>
+                    <option value="minimal">极简治愈</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>情绪</span>
+                  <select id="avatarMood" class="select">
+                    <option value="happy">开心</option>
+                    <option value="calm">平静</option>
+                    <option value="brave">元气</option>
+                    <option value="gentle">温柔</option>
+                  </select>
+                </label>
+              </div>
+              <label class="field">
+                <span>角色描述（可改写）</span>
+                <textarea id="editablePrompt" class="textarea" rows="7"></textarea>
+              </label>
+              <div class="button-row">
+                <button id="generateBtn" class="btn primary">生成角色</button>
+                <button id="saveRoleBtn" class="btn secondary">保存当前角色</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card section-card chat-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">3. 陪伴聊天</div>
+              <div class="section-subtitle">问天气时直接返回天气结果；其他问题才调用 AI。</div>
+            </div>
+            <div class="section-actions compact">
+              <button id="triggerVisitorBtn" class="btn tertiary small">试一下访客串门</button>
+            </div>
+          </div>
+          <div id="chatList" class="chat-list"></div>
+          <div id="chatStatus" class="tiny-status">可以试试：鼓励我一下 / 帮我拆解任务 / 今天天气怎么样。</div>
+          <div class="chat-input-row">
+            <input id="chatInput" class="input" placeholder="和桌宠说句话，例如：我有点拖延，帮我拆一下下一步。" />
+            <button id="sendChatBtn" class="btn primary">发送</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-column">
+        <div class="card section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">实时天气</div>
+              <div class="section-subtitle">这里不用 AI，也不用天气专用 Key，只要填城市就能查。</div>
+            </div>
+          </div>
+          <label class="field">
+            <span>城市</span>
+            <input id="cityInput" class="input" placeholder="例如：大连" />
+          </label>
+          <div class="button-row">
+            <button id="saveWeatherBtn" class="btn secondary">保存城市</button>
+            <button id="testWeatherBtn" class="btn tertiary">刷新天气</button>
+          </div>
+          <div id="weatherPreview" class="status-box soft">天气预览会显示在这里。</div>
+        </div>
+
+        <div class="card section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">今日节奏</div>
+              <div class="section-subtitle">让桌宠提醒你，不要把任务想得太大。</div>
+            </div>
+          </div>
+          <div class="focus-hero">
+            <div class="focus-pill" id="focusModeLabel">专注中</div>
+            <div class="timer" id="focusTimer">25:00</div>
+            <div class="small-note">已完成 <strong id="completedSessions">0</strong> 次专注</div>
+          </div>
+          <div class="form-grid two-col">
+            <label class="field">
+              <span>专注时长（分钟）</span>
+              <input id="focusMinutesInput" class="input" type="number" min="1" max="180" value="25" />
+            </label>
+            <label class="field">
+              <span>休息时长（分钟）</span>
+              <input id="breakMinutesInput" class="input" type="number" min="1" max="60" value="5" />
+            </label>
+          </div>
+          <label class="field">
+            <span>当前任务</span>
+            <input id="focusTaskInput" class="input" placeholder="例如：写完实验报告摘要" />
+          </label>
+          <div class="button-row">
+            <button id="focusPrimaryBtn" class="btn primary">开始专注</button>
+            <button id="focusResetBtn" class="btn secondary">重置</button>
+            <button id="saveFocusSettingsBtn" class="btn tertiary">保存设置</button>
+          </div>
+        </div>
+
+        <div class="card section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">待办清单</div>
+              <div class="section-subtitle">勾掉一件事，宠物就会开心一点。</div>
+            </div>
+            <div class="section-actions compact">
+              <span id="planProgress" class="soft-pill">已完成 0/0</span>
+            </div>
+          </div>
+          <div class="input-with-button">
+            <input id="newPlanInput" class="input" placeholder="输入今天想完成的一件事" />
+            <button id="addPlanBtn" class="btn secondary">添加</button>
+          </div>
+          <div id="planList" class="plan-list"></div>
+        </div>
+
+        <div class="card section-card">
+          <div class="section-head">
+            <div>
+              <div class="section-title">角色与主题</div>
+              <div class="section-subtitle">把常用角色和喜欢的主题放在一起，用起来更顺手。</div>
+            </div>
+          </div>
+          <div class="side-metrics">
+            <div class="soft-chip">快乐度 <strong id="happinessDisplay">76/100</strong></div>
+            <div class="soft-chip">专注币 <strong id="focusCoinsDisplay">0</strong></div>
+          </div>
+          <div id="roleList" class="role-list"></div>
+          <div id="themeStoreList" class="theme-grid"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="renderer-config.js"></script>
+  <script src="control.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "name": "desktop-pet-app",
+  "version": "1.3.0",
+  "description": "Virtual desktop pet with unified AI chat/avatar generation, independent weather preview, focus timer, themes, and visitor events.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node scripts/qa-check.js",
+    "dist:win": "electron-builder --win nsis --publish never"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "author": "OpenAI",
+  "license": "MIT",
+  "build": {
+    "appId": "com.openai.desktoppet",
+    "productName": "Desktop Pet App",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "*.js",
+      "*.html",
+      "*.css",
+      "scripts/**/*",
+      ".github/workflows/build.yml",
+      "build.yml",
+      "README.md",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Desktop-Pet-App-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Desktop Pet App"
+    }
+  }
+}

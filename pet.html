@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https:; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>桌面宠物</title>
+</head>
+<body class="pet-body">
+  <div class="pet-shell" id="petShell">
+    <div class="pet-bubble" id="petBubble">今天也一起稳稳往前走。</div>
+    <div class="pet-card" id="petCard">
+      <div class="pet-inner" id="petInner">
+        <div class="pet-face">😊</div>
+      </div>
+      <div class="pet-tag" id="petTag">专注 25:00</div>
+    </div>
+    <button class="pet-gear" id="openBtn" title="打开控制台">⚙</button>
+    <div class="pet-notice hidden" id="petNotice"></div>
+    <div class="visitor-card hidden" id="visitorCard">
+      <div class="visitor-avatar" id="visitorAvatar">👋</div>
+      <div class="visitor-copy">
+        <strong id="visitorName">访客</strong>
+        <span id="visitorLine">来看看你。</span>
+      </div>
+    </div>
+  </div>
+  <script src="pet.js"></script>
+</body>
+</html>
